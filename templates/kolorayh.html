@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>IOT Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f2f2f2;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+        }
+        .btn-on {
+            background-color: lightseagreen;
+            color: white;
+        }
+        .btn-off {
+            background-color: tomato;
+            color: white;
+        }
+        .temp {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fan Button</h1>
+        <button id="toggleBtn" class="btn btn-on">Turn On</button>
+        <div class="temp">Temperature: {{ nowtemp }}</div>
+        <div class="temp">gas: {{ nowgas }}</div>
+    </div>
+
+    <script>
+        const button = document.getElementById('toggleBtn');
+        let isOn = false;
+
+        button.addEventListener('click', () => {
+            isOn = !isOn;
+            const state = isOn ? 'Off' : 'On';
+            button.textContent = `Turn${state}`;
+            
+            // Send data to Python script
+            fetch('/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ state: isOn })
+            });
+        });
+    </script>
+
+    <div id="temp_fig"></div>
+    <div id="temp_fig2"></div>
+
+    <script>
+        var fig_json = {{ fig_json | safe }};
+        Plotly.newPlot('temp_fig', fig_json.data, fig_json.layout);
+        
+        var fig2_json = {{ fig2_json | safe }};
+        Plotly.newPlot('temp_fig2', fig2_json.data, fig2_json.layout);
+    </script>
+
+</body>
+</html>
